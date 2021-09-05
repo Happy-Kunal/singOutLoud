@@ -1,2 +1,4 @@
-youtube-search-python
+pygobject
 youtube_dl
+playsound
+youtube-search-python
