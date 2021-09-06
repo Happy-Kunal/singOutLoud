@@ -17,6 +17,7 @@ def playMusic(track_number: int = 1):
         if len(musicQueue) > track_number:
             print("Currently Playing: ", musicQueue[track_number])
             playsound.playsound(musicQueue[track_number]) # it is intentional so that in future we can implement playing privious song again 
+            track_number += 1
             number_of_attempts = 0
         elif number_of_attempts > 30:
             print("Internet speed is too slow :-( , Try again later")
