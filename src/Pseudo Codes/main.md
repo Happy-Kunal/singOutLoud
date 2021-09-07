@@ -3,7 +3,11 @@
 ---
 ***6 September 2021***
 ```
-ToDo
+1. download_song() will run on another thread iff user want it (i.e. Having Slow internet speed for live streaming)
+2. playMusic() will run on another thread
+    - playmusic will show menu
+    - user input will we availabe at bottom
+    - user input will make script peroform requested feature
 ```
 
 ---
