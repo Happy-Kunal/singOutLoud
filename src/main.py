@@ -40,7 +40,7 @@ class SongList:
             playlist = None, 
             shuffle = False, 
             repeatqueue = False,
-            repeatone = False,
+            repeatone = False
     ):
         if song: 
             self.songs.append(get_song_info(song))
@@ -116,7 +116,6 @@ def playMusic(track_number: int = 1):
         if len(musicQueue) > track_number:
             print("Currently Playing: ", musicQueue[track_number])
             playsound.playsound(musicQueue[track_number]) # it is intentional so that in future we can implement playing privious song again 
-            track_number += 1
             number_of_attempts = 0
         elif number_of_attempts > 30:
             print("Internet speed is too slow :-( , Try again later")
@@ -131,6 +130,7 @@ def download_song(songlist : SongList, path : str = "./Downloads/"):
     link = currentsong["link"]
     title = currentsong["title"]
     video_duration = currentsong["duration"]
+
     # Checks For Is Song Of Suitable Length Or Not
     isVideoTooLongOrTooShort = (video_duration.count(":") != 1)
     isVideoShorterThan11Min = (int(video_duration.split(":")[0]) <= 11)
