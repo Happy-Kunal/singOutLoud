@@ -1,7 +1,6 @@
 # For Pseudo see ./"Pseudo Codes"/main.md
 
 import os
-import json
 import time
 import playsound
 import threading
@@ -34,6 +33,7 @@ class SongList:
     # contains the id time and name of all the songs in the current playlist
     songs = []
     current_song_number : int
+    searchObject = None
     def __init__(self, 
             searchstr = None,
             song = None, 
@@ -66,7 +66,7 @@ class SongList:
             if self.current_song_number == len(self.songs):
                 self.current_song_number = 0
         if self.searchObject:
-            song = self.searchObject.result()["result"]
+            song = self.searchObject.result()["result"][0]
             self.searchObject.next()
             return {
                 "id" : song.get("id"),
@@ -99,8 +99,8 @@ def get_playlist_info(playlist : str) -> list:
     Return the information of a song that later be stored in SongList object
 """
 def get_song_info(song_id : str) -> list:
-    video = json.loads(youtubesearchpython.Video.get(song_id, 
-            mode = youtubesearchpython.ResultMode.json))
+    video = youtubesearchpython.Video.get(song_id, 
+            mode = youtubesearchpython.ResultMode.dict)
     return [{
         "id" : video.get("id"),
         "duration" : video.get("duration"),
