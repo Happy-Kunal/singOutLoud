@@ -64,7 +64,6 @@ def dynamic_terminal(SongListObject: SongList, playMusicThreadObject: Thread):
                     print(f"{index + 1}. {song}")
 
             elif choice in ("p", "previous", "back"):
-                playMusicThreadObject._stop()
                 SongListObject.current_song_number -= 1
             
             elif choice in ("n", "next", "ahead"):

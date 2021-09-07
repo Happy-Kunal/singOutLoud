@@ -1,12 +1,11 @@
 # For Pseudo see ./"Pseudo Codes"/main.md
 
 import os
-import json
 import time
 import playsound
 import threading
 import youtubesearchpython
-import youtube_dl
+import pytube
 import random
 
 
@@ -15,16 +14,22 @@ class SongList:
     # contains the id time and name of all the songs in the current playlist
     songs = []
     current_song_number : int
+    searchObject = None
     def __init__(self, 
+            searchstr = None,
             song = None, 
             playlist = None, 
             shuffle = False, 
             repeatqueue = False,
-            repeatone = False):
+            repeatone = False
+    ):
         if song: 
             self.songs.append(get_song_info(song))
         if playlist:
             self.songs += get_playlist_info(playlist)
+        if searchstr:
+            self.searchObject = youtubesearchpython.VideosSearch( searchstr, 
+                    limit = 1) # it will fetch a single song at a time with requested type
         self.shuffle = shuffle
         self.current_song_number = 0
         self.repeatqueue = repeatqueue
@@ -41,9 +46,17 @@ class SongList:
         if self.repeatqueue :
             if self.current_song_number == len(self.songs) - 1:
                 self.current_song_number = 0
-            else:
-                self.current_song_number += 1
-            return self.songs[self.current_song_number]
+        if self.searchObject:
+            song = self.searchObject.result()["result"][0]
+            self.searchObject.next()
+            return {
+                "id" : song.get("id"),
+                "duration" : song.get("duration"),
+                "title" : song.get("title"),
+                "link" : song.get("link"),
+            }
+        self.current_song_number += 1
+        return self.songs[self.current_song_number]
 
 
 
@@ -67,8 +80,8 @@ def get_playlist_info(playlist : str) -> list:
     Return the information of a song that later be stored in SongList object
 """
 def get_song_info(song_id : str) -> list:
-    video = json.loads(youtubesearchpython.Video.get(song_id, 
-            mode = youtubesearchpython.ResultMode.json))
+    video = youtubesearchpython.Video.get(song_id, 
+            mode = youtubesearchpython.ResultMode.dict)
     return [{
         "id" : video.get("id"),
         "duration" : video.get("duration"),
@@ -84,7 +97,6 @@ def playMusic(track_number: int = 1):
         if len(musicQueue) > track_number:
             print("Currently Playing: ", musicQueue[track_number])
             playsound.playsound(musicQueue[track_number]) # it is intentional so that in future we can implement playing privious song again 
-            track_number += 1
             number_of_attempts = 0
         elif number_of_attempts > 30:
             print("Internet speed is too slow :-( , Try again later")
@@ -94,55 +106,41 @@ def playMusic(track_number: int = 1):
             number_of_attempts += 1
             time.sleep(10)
 
-def download_song(searchObject : youtubesearchpython.VideosSearch, path : str = "./Downloads/", musicQueue : list = []):
-    # TODO : use pytube instead of youtube_dl( better performance)
-    # TODO : make searching song a different function this function should only
-    # for downloading songs
-    Downloading_str = "youtube-dl --ignore-errors -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 --no-progress -o "
-
-    while (len(musicQueue) > 9):
-        time.sleep(300)
-    
-    # getting song information from YT
-    searchResult = searchObject.result()["result"][0]
-    
-    link = searchResult["link"]
-    title = searchResult["title"]
-    video_duration = searchResult["duration"]
+def download_song(songlist : SongList, path : str = "./Downloads/"):
+    currentsong = songlist.get_next_song() 
+    link = currentsong["link"]
+    title = currentsong["title"]
+    video_duration = currentsong["duration"]
 
     # Checks For Is Song Of Suitable Length Or Not
     isVideoTooLongOrTooShort = (video_duration.count(":") != 1)
     isVideoShorterThan11Min = (int(video_duration.split(":")[0]) <= 11)
 
     if (not isVideoTooLongOrTooShort) and (isVideoShorterThan11Min):
-        # print(f"{Downloading_str} {path} {title}.mp3 {link}") # For Checking weather correct command is executing or not
-        # Downloading Song
-        os.system(f"{Downloading_str} {path}\"{title}.mp3\" {link} >/dev/null 2>/dev/null") #https://stackoverflow.com/questions/617182/how-can-i-suppress-all-output-from-a-command-using-bash
+        yt = pytube.YouTube(link)
+        audio_stream = yt.streams.filter(only_audio=True).all()
+        audio_stream[0].download(path)
     else:
         # Trying Again if current song isn't suitable for Downloading and playing
-        searchObject.next()
-        download_song(searchObject, path)
+        songlist.next()
+        download_song(songlist, path)
     
     # updating music queue
-    musicQueue.append(f"{path}{title}.mp3")
-    searchObject.next() # making search object cursor on next song
-    
-    return (musicQueue, searchObject)
-
+    songlist.next()
 
 if __name__ == "__main__":
     musicQueue = [] # will store name of songs as soon as a song ends it will pop out the song before it (i.e. we will play song at index 1)
 
     # User Inputs i.e. latest released
     music_choice = input("Enter The Type Of Music/Song You Want To Listen :\t") + "song"
-    searchObject = youtubesearchpython.VideosSearch(music_choice, limit = 1) # it will fetch a single song at a time with requested type
 
     thread = threading.Thread(target=playMusic, name="Music Player")
     thread.start()
 
     try:
         while True:
-            musicQueue, searchObject = download_song(searchObject, path = "./Downloads/", musicQueue = musicQueue)
+            songlist = SongList(searchstr=music_choice)
+            download_song(songlist, path = "./Downloads/")
             if not thread.is_alive():
                 break
     except KeyboardInterrupt:
