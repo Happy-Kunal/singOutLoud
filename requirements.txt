@@ -1,4 +1,4 @@
 pygobject
-youtube_dl
 playsound
 youtube-search-python
+pytube
