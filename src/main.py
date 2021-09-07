@@ -47,7 +47,7 @@ class SongList:
         if playlist:
             self.songs.append(get_playlist_info(playlist))
         if searchstr:
-            self.searchObject = youtubesearchpython.VideosSearch(music_choice, 
+            self.searchObject = youtubesearchpython.VideosSearch( searchstr, 
                     limit = 1) # it will fetch a single song at a time with requested type
         self.shuffle = shuffle
         self.current_song_number = 0
