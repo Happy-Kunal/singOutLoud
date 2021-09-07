@@ -1,2 +1,4 @@
 DeleteMe/
 Downloads/
+__pycache__/
+test.py
