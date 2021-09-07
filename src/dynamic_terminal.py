@@ -5,6 +5,9 @@ import sys
 import readline # The readline module is imported so that editing and history are available at the input prompt
 from time import sleep
 
+from main import SongList
+from threading import Thread
+
 # Get the (current) number of lines in the terminal
 import shutil
 height = shutil.get_terminal_size().lines - 1
@@ -40,7 +43,7 @@ def available_options_for_input(): # for printing menu
 
 emit(CLEAR, set_scroll(height))
 
-def dynamic_terminal(musicQueue: list, playMusicThreadObject):
+def dynamic_terminal(SongListObject: SongList, playMusicThreadObject: Thread):
     try:
         while True:
             #Get input
@@ -55,19 +58,27 @@ def dynamic_terminal(musicQueue: list, playMusicThreadObject):
 
             if choice in ("h", "help"):
                 available_options_for_input()
+            
             elif choice in ("d", "q", "queue", "display", "song", "songs", "music", "list", "music list", "song list"):
-                for index, song in enumerate(musicQueue):
+                for index, song in enumerate(SongListObject.songs):
                     print(f"{index + 1}. {song}")
+
             elif choice in ("p", "previous", "back"):
-                pass
+                playMusicThreadObject._stop()
+                SongListObject.current_song_number -= 1
+            
             elif choice in ("n", "next", "ahead"):
                 pass
+            
             elif choice in ("s", "shuffle", "party", "something else"):
                 pass
+            
             elif choice in ("rs", "single", "ro", "repeat one") :
                 pass
+            
             elif choice in ("rq", "rq", "repeat all", "repeat queue") :
                 pass
+            
             else:
                 print("Sorry, But, Enter A Valid Choice")
 

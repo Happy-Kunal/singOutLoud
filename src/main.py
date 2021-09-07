@@ -9,25 +9,6 @@ import youtubesearchpython
 import youtube_dl
 import random
 
-# User Defined Modules
-#import menus
-
-"""
-Q- How Will Code Work ???
-A- we will gonna make a global youtubesearchpython.VideoSearch object with our search string
-and call function download_song() which will download songs and keep 3 
-songs in a upcoming queue so to fight delay due to buffering and at the and function will call
-youtubesearchpython.VideoSearch().next() so that we can get a list of next 3 songs as soon as
-user Reaches the end of queue we will download 3 more songs and enqueue them too.
-
-Pseudo Code:
-    1. make a global youtubesearchpython.VideoSearch object with our search string
-    2. call function download_song() which will download songs
-    3. make queue and add songs to it
-    4. make thread to play songs
-    5. At End Of of download_song() update new list of songs
-    6. Download Songs if there are less than 2 songs in queue # Currently found no need but left if change mind in future
-"""
 
 
 class SongList:
@@ -43,7 +24,7 @@ class SongList:
         if song: 
             self.songs.append(get_song_info(song))
         if playlist:
-            self.songs.append(get_playlist_info(playlist))
+            self.songs += get_playlist_info(playlist)
         self.shuffle = shuffle
         self.current_song_number = 0
         self.repeatqueue = repeatqueue
@@ -54,14 +35,15 @@ class SongList:
     """
     def get_next_song(self) -> dict:
         if self.shuffle:
-            return self.songs[random.randint(0, len(self.songs))]
+            return self.songs[random.randrange(0, len(self.songs))]
         if self.repeatone:
             return self.songs[self.current_song_number]
         if self.repeatqueue :
-            if self.current_song_number == len(self.songs):
+            if self.current_song_number == len(self.songs) - 1:
                 self.current_song_number = 0
-        self.current_song_number += 1
-        return self.songs[self.current_song_number - 1]
+            else:
+                self.current_song_number += 1
+            return self.songs[self.current_song_number]
 
 
 
@@ -72,12 +54,12 @@ class SongList:
 def get_playlist_info(playlist : str) -> list:
     songlist = youtubesearchpython.Playlist(playlist)
     playlist = []
-    for i in songlist.videos:
+    for song in songlist.videos:
         playlist.append({
-            "id" : i.get("id"),
-            "duration" : i.get("duration"),
-            "title" : i.get("title"),
-            "link" : i.get("link"),
+            "id" : song.get("id"),
+            "duration" : song.get("duration"),
+            "title" : song.get("title"),
+            "link" : song.get("link"),
         })
     return playlist
 
