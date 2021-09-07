@@ -5,8 +5,8 @@ import sys
 import readline # The readline module is imported so that editing and history are available at the input prompt
 from time import sleep
 
-from main import SongList
-from threading import Thread
+import player
+import multiprocessing
 
 # Get the (current) number of lines in the terminal
 import shutil
@@ -39,11 +39,14 @@ def available_options_for_input(): # for printing menu
     print("[RS] Repeat Single")
     print("[RQ] Repeat Queue")
     print("[H]elp")
+    print("[E]xit")
 
 
 emit(CLEAR, set_scroll(height))
 
-def dynamic_terminal(SongListObject: SongList, playMusicThreadObject: Thread):
+def dynamic_terminal(SongListObject: player.SongList, playMusicProcessObject: multiprocessing.Process):
+    print("It is recommended not to resize terminal !\n")
+    
     try:
         while True:
             #Get input
@@ -64,19 +67,36 @@ def dynamic_terminal(SongListObject: SongList, playMusicThreadObject: Thread):
                     print(f"{index + 1}. {song}")
 
             elif choice in ("p", "previous", "back"):
+                playMusicProcessObject.terminate()
                 SongListObject.current_song_number -= 1
+                playMusicProcessObject = multiprocessing.Process()
             
             elif choice in ("n", "next", "ahead"):
-                pass
+                playMusicProcessObject.terminate()
+                SongListObject.current_song_number += 1
+                playMusicProcessObject = multiprocessing.Process(target=player.playMusic, args=(SongListObject))
+            
             
             elif choice in ("s", "shuffle", "party", "something else"):
-                pass
+                SongListObject.shuffle = True
+                SongListObject.repeatone = False
+                SongListObject.repeatqueue = False
             
             elif choice in ("rs", "single", "ro", "repeat one") :
-                pass
+                SongListObject.shuffle = False 
+                SongListObject.repeatone = True
+                SongListObject.repeatqueue = False
+            
             
             elif choice in ("rq", "rq", "repeat all", "repeat queue") :
-                pass
+                SongListObject.shuffle = False 
+                SongListObject.repeatone = False
+                SongListObject.repeatqueue = True
+            
+
+            elif choice in ("e", "exit", "quit", "finish", "terminate"):
+                playMusicProcessObject.terminate()
+                exit(0)
             
             else:
                 print("Sorry, But, Enter A Valid Choice")
