@@ -46,7 +46,7 @@ emit(CLEAR, set_scroll(height))
 
 def dynamic_terminal(SongListObject: player.SongList, playMusicProcessObject: multiprocessing.Process):
     print("It is recommended not to resize terminal !\n")
-    
+
     try:
         while True:
             #Get input
@@ -69,12 +69,14 @@ def dynamic_terminal(SongListObject: player.SongList, playMusicProcessObject: mu
             elif choice in ("p", "previous", "back"):
                 playMusicProcessObject.terminate()
                 SongListObject.current_song_number -= 1
-                playMusicProcessObject = multiprocessing.Process()
-            
+                playMusicProcessObject = multiprocessing.Process(target=player.playMusic, args=(SongListObject))
+                SongListObject.playMusicProcessObject = playMusicProcessObject
+                
             elif choice in ("n", "next", "ahead"):
                 playMusicProcessObject.terminate()
                 SongListObject.current_song_number += 1
                 playMusicProcessObject = multiprocessing.Process(target=player.playMusic, args=(SongListObject))
+                SongListObject.playMusicProcessObject = playMusicProcessObject
             
             
             elif choice in ("s", "shuffle", "party", "something else"):
@@ -106,3 +108,5 @@ def dynamic_terminal(SongListObject: player.SongList, playMusicProcessObject: mu
     except KeyboardInterrupt:
         #Disable scrolling, but leave cursor below the input row
         emit(set_scroll(0), GOTO_INPUT, b'\n')
+        playMusicProcessObject.terminate()
+        exit(1)

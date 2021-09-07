@@ -11,22 +11,18 @@ class SongList:
     # contains the id time and name of all the songs in the current playlist
     songs = []
     current_song_number : int
-    searchObject = None
-    def __init__(self, 
-            searchstr = None,
-            song = None, 
-            playlist = None, 
+    playMusicProcessObject = None
+    def __init__(self,
+            path = "./Downloads/",
+            searchstr = "English Songs",
             shuffle = False, 
             repeatone = False,
             repeatqueue = False
     ):
-        if song: 
-            self.songs.append(get_song_info(song))
-        if playlist:
-            self.songs += get_playlist_info(playlist)
-        if searchstr:
-            self.searchObject = youtubesearchpython.VideosSearch( searchstr, 
-                    limit = 1) # it will fetch a single song at a time with requested type
+        
+        self.path = path
+        self.searchObject = youtubesearchpython.VideosSearch( searchstr, 
+                limit = 1) # it will fetch a single song at a time with requested type
         self.shuffle = shuffle
         self.current_song_number = -1
         self.repeatqueue = repeatqueue
@@ -57,41 +53,12 @@ class SongList:
 
 
 
-"""
-    This function will return a list of song id from a playlist
-    The ids will later be used in playMusic() function to play music
-"""
-def get_playlist_info(playlist : str) -> list:
-    songlist = youtubesearchpython.Playlist(playlist)
-    playlist = []
-    for song in songlist.videos:
-        playlist.append({
-            "id" : song.get("id"),
-            "duration" : song.get("duration"),
-            "title" : song.get("title"),
-            "link" : song.get("link"),
-        })
-    return playlist
-
-"""
-    Return the information of a song that later be stored in SongList object
-"""
-def get_song_info(song_id : str) -> list:
-    video = youtubesearchpython.Video.get(song_id, 
-            mode = youtubesearchpython.ResultMode.dict)
-    return [{
-        "id" : video.get("id"),
-        "duration" : video.get("duration"),
-        "title" : video.get("title"),
-        "link" : video.get("link"),
-    }]
-
-
-def playMusic(SongListObject: SongList, path: str = "./Downloads/"):
+def playMusic(SongListObject: SongList):
     number_of_attempts = 0
+    path = SongListObject.path
 
     while True:
-        if len(SongListObject.songs) < 1:
+        if len(SongListObject.songs) == 0:
             print("Please Wait for some time while we are downloading some songs")
             number_of_attempts += 1
             time.sleep(10)
