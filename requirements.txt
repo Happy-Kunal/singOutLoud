@@ -2,3 +2,4 @@ pygobject
 playsound
 youtube-search-python
 pytube
+pynput

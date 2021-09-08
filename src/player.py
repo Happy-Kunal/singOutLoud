@@ -1,17 +1,14 @@
-import os
 import time
 import playsound
-import multiprocessing
 import youtubesearchpython
 import pytube
-import youtubesearchpython
 import random
 
 class SongList:
     # contains the id time and name of all the songs in the current playlist
     songs = []
     current_song_number : int
-    playMusicProcessObject = None
+    playMusicThreadObject = None
     def __init__(self,
             path = "./Downloads/",
             searchstr = "English Songs",
@@ -21,8 +18,7 @@ class SongList:
     ):
         
         self.path = path
-        self.searchObject = youtubesearchpython.VideosSearch( searchstr, 
-                limit = 1) # it will fetch a single song at a time with requested type
+        self.searchObject = youtubesearchpython.VideosSearch( searchstr, limit = 1) # it will fetch a single song at a time with requested type
         self.shuffle = shuffle
         self.current_song_number = -1
         self.repeatqueue = repeatqueue
@@ -39,15 +35,7 @@ class SongList:
         if self.repeatqueue :
             if self.current_song_number == len(self.songs) - 1:
                 self.current_song_number = 0
-        if self.searchObject:
-            song = self.searchObject.result()["result"][0]
-            self.searchObject.next()
-            return {
-                "id" : song.get("id"),
-                "duration" : song.get("duration"),
-                "title" : song.get("title"),
-                "link" : song.get("link"),
-            }
+
         self.current_song_number += 1
         return self.songs[self.current_song_number]
 
@@ -56,9 +44,13 @@ class SongList:
 def playMusic(SongListObject: SongList):
     number_of_attempts = 0
     path = SongListObject.path
+    print("I am Here at Playmusic")
+    print(SongListObject.songs)
 
     while True:
         if len(SongListObject.songs) == 0:
+            print("I am Here at If")
+            print(SongListObject.songs)
             print("Please Wait for some time while we are downloading some songs")
             number_of_attempts += 1
             time.sleep(10)
@@ -71,6 +63,6 @@ def playMusic(SongListObject: SongList):
             song = SongListObject.get_next_song()
             print("Currently Playing: ",song["title"])
             print("Duration :", song["duration"])
-            playsound.playsound(f"{path}" + song["title"])
+            playsound.playsound(path + song["title"] + ".mp4")
             number_of_attempts = 0
             
