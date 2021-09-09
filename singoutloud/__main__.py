@@ -1,11 +1,11 @@
 # For Pseudo see ./"Pseudo Codes"/main.md
 
 import time
-import killAbleThread
 import pytube
 
 import player
-import dynamic_terminal
+import killAbleThread
+
 
 def download_song(songlist : player.SongList):
     path = songlist.path

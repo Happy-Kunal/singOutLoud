@@ -39,7 +39,7 @@ pip3 install -r requirements.txt
 **Well Various Features Are Still On The Way, But Currently You Can Test Its Some Features By:**
 ```
 cd </path/to>/singOutLoud/
-python3 ./src/main.py
+python3 singoutloud
 ```
 ---
 ## Contributing
