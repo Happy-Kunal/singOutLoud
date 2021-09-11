@@ -1,3 +1,2 @@
-import player
-import killAbleThread
-
+import singoutloud.player
+import singoutloud.dynamicTerminal

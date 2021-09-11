@@ -1,5 +1,3 @@
-pygobject
-playsound
+python-vlc
 youtube-search-python
 pytube
-pynput
