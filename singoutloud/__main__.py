@@ -2,8 +2,7 @@
 
 import time
 import pytube
-
-import singoutloud.player as player
+import player
 
 if __name__ == "__main__":    
     # TODO : integrate all the function run dynamicTerminal on mainthread and 

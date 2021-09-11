@@ -1,2 +1,2 @@
-import singoutloud.player
-import singoutloud.dynamicTerminal
+import player
+import dynamicTerminal
